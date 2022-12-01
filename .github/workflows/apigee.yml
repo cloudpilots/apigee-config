@@ -1,0 +1,126 @@
+# This workflow will build a Java project with Maven
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Apigee CI/CD with Maven
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  GCP_SA_JSON: ${{ secrets.SA_JSON }}
+  PARENT_POM: ${{secrets.PARENT_POM}}
+  GIT_BRANCH: ""
+  APIGEE_ORG: ""
+  APIGEE_ENV: ""
+  APIGEE_DEPLOYMENT_SUFFIX: ""
+  DEFAULT_APIGEE_ORG: cpl-apigee-ng
+  DEFAULT_APIGEE_ENV: test
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Set up node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+
+        # Set Variables depending on branch
+      - name: Set Variables for [Main] (Prod) branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          echo "APIGEE_ENV=prod" >> $GITHUB_ENV
+
+      - name: Set Variables for [Acceptance] branch
+        if: github.ref == 'refs/heads/acceptance'
+        run: |
+          echo "APIGEE_ENV=acceptance" >> $GITHUB_ENV
+
+      - name: Set Variables for [Dev] branch
+        if: github.ref == 'refs/heads/dev'
+        run: |
+          echo "APIGEE_ENV=dev" >> $GITHUB_ENV
+
+      - name: Set Variables for branch not [Main], not [Acceptance], not [Dev]
+        if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/acceptance' && github.ref != 'refs/heads/dev'
+        run: |
+          echo "APIGEE_ENV=$(echo $DEFAULT_APIGEE_ENV)" >> $GITHUB_ENV
+
+        # Generate SA key file from secret variable
+      - name: Generate SA key file
+        run: |
+          echo $GCP_SA_JSON > sa.json
+
+      # - name: Set up apigeelint
+      #   run: npm install apigeelint
+
+      # - name: Static Code Analysis
+      #   shell: "bash"
+      #   run: |
+      #     cd "$_WORK_DIR"
+      #     npm run apigeelint | tee report.apigeelint.html && \
+      #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
+
+      ## Start secrets decrypt
+      ## Enable this step, if you need to decrypt secrets
+      # - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
+      #   with:
+      #     # version: '290.0.1'
+      #     project_id: ${{ secrets.GCP_PROJECT_ID }}
+      #     service_account_key: ${{ secrets.GCP_SA_KEY }}
+      #     export_default_credentials: true
+      # - run: gcloud info
+      # - name: 'decrypt secrets with Cloud KMS'
+      #   run: |
+      #     GCP_KMS_KEY_RING=${GCP_KMS_KEY_RING:-apimgmt}
+      #     GCP_KMS_KEY=${GCP_KMS_KEY:-github}
+      #     GCP_KMS_LOCATION=${GCP_KMS_LOCATION:-global}
+      #     for enc_file in $(find . -name '*.enc')
+      #     do
+      #       echo "Decrypting $enc_file"
+      #       gcloud kms decrypt --ciphertext-file=$enc_file --plaintext-file=${enc_file//\.enc/} --key=$GCP_KMS_KEY --keyring=$GCP_KMS_KEY_RING --location=$GCP_KMS_LOCATION
+      #     done
+      ## End secrets decrypt
+
+      # - name: Cache Maven packages
+      #   uses: actions/cache@v2
+      #   with:
+      #     path: ~/.m2
+      #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      #     restore-keys: ${{ runner.os }}-m2
+
+      - name: Prepare repo for maven deployment
+        shell: bash
+        run: |
+          echo $PARENT_POM > pom.xml
+
+      - name: Deploy apigee config with Maven
+        shell: bash
+        run: |
+          export BRANCH_NAME="${GITHUB_REF##*/}"
+          if [ -z "$GCP_SA_JSON" ]; then
+            echo "GCP_SA_JSON is required"
+            exit 1
+          fi
+          echo $GCP_SA_JSON > sa.json
+          mvn clean install -Pcicd -Denv=$APIGEE_ENV -Dorg=$DEFAULT_APIGEE_ORG -Dfile=sa.json -Dapigee.config.options=update
+          popd
+
+      # - name: Clean up repo
+      #   shell: bash
+      #   run: |
+      #     POMS=$(find . -name "*pom.xml" -type f)
+      #     for pom in $POMS
+      #     do
+      #       echo "$pom"
+      #       rm -f $pom
+      #     done
