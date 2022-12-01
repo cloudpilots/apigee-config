@@ -8,7 +8,7 @@ Deployment of the config
 
 ```sh
 ./prepare-local-deployment.sh
-mvn clean install -ntp -B -Px-cicd -Dbearer=$(gcloud auth print-access-token)
+mvn clean install -ntp -B -Pcicd -Dorg=your_org -Denv=your_env -Dbearer=$(gcloud auth print-access-token)
 ```
 
 ## Examples

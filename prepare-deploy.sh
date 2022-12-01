@@ -1,0 +1,137 @@
+#!/bin/bash 
+cat <<EOT > ./pom.xml
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>apigee</groupId>
+    <artifactId>cicd</artifactId>
+    <packaging>pom</packaging>
+    <version>1.0</version>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>central</id>
+            <name>Maven Plugin Repository</name>
+            <url>https://repo1.maven.org/maven2</url>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    <properties>
+	    <main.basedir>\${project.basedir}</main.basedir>
+        <apigee.config.dir>\${project.basedir}/config</apigee.config.dir>
+        <apigee.config.options>update</apigee.config.options>
+
+    </properties>
+
+    <build>
+    
+        <plugins>
+            <plugin>
+                <artifactId>maven-clean-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>com.apigee.edge.config</groupId>
+                <artifactId>apigee-config-maven-plugin</artifactId>
+                <version>2.4.4</version>
+                <executions>
+                    <execution>
+                        <id>create-config-kvms</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>kvms</goal>
+                        </goals>
+                    </execution>
+
+                    <execution>
+                        <id>create-config-keystores</id>
+                        <phase>\${apigee.config.keystores.phase}</phase>
+                        <goals>
+                            <goal>keystores</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-aliases</id>
+                        <phase>\${apigee.config.aliases.phase}</phase>
+                        <goals>
+                            <goal>aliases</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-references</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>references</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-targetserver</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>targetservers</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-resourcefiles</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>resourcefiles</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-apiproduct</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>apiproducts</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-developer</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>developers</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-app</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>apps</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>create-config-reports</id>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>reports</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+	
+<!-- This is where you add the environment specific properties under various profile names -->
+ <profiles>
+        <profile>
+            <id>cicd</id>
+            <properties>
+                <apigee.profile>cicd</apigee.profile>
+                <apigee.hosturl>https://apigee.googleapis.com</apigee.hosturl>
+                <apigee.apiversion>v1</apigee.apiversion>
+                <apigee.org>\${org}</apigee.org>
+                <apigee.env>\${env}</apigee.env>
+                <apigee.bearer>\${bearer}</apigee.bearer> 
+                <apigee.serviceaccount.file>\${file}</apigee.serviceaccount.file>
+                <apigee.options>override</apigee.options> <!-- override is default. Other options are async|clean-->
+            </properties>
+        </profile>
+    </profiles>
+</project>
+EOT
