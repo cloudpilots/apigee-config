@@ -113,7 +113,6 @@ jobs:
           fi
           echo $GCP_SA_JSON > sa.json
           mvn clean install -Pcicd -Denv=$APIGEE_ENV -Dorg=$DEFAULT_APIGEE_ORG -Dfile=sa.json -Dapigee.config.options=update
-          popd
 
       # - name: Clean up repo
       #   shell: bash
