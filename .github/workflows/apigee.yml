@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+      - acceptance
+      - dev
+      - test
 
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
@@ -32,9 +35,10 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version:
+            16
 
-        # Set Variables depending on branch
+            # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
         if: github.ref == 'refs/heads/main'
         run: |
