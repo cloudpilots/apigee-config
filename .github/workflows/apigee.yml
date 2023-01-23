@@ -70,7 +70,7 @@ jobs:
           tokenSuffix: "}"
           files: '["**/*.json"]'
         env:
-          private.key: test
+          private.key: ${{ secrets.TEST }}
 
       # - name: Set up apigeelint
       #   run: npm install apigeelint
