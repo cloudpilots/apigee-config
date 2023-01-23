@@ -66,6 +66,8 @@ jobs:
 
       - uses: cschleiden/replace-tokens@v1
         with:
+          tokenPrefix: "{"
+          tokenSuffix: "}"
           files: '["**/*.json"]'
         env:
           private.key: test
