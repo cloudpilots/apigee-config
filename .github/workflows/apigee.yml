@@ -64,6 +64,12 @@ jobs:
         run: |
           echo $GCP_SA_JSON > sa.json
 
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          files: '["**/*.json"]'
+        env:
+          private.key: test
+
       # - name: Set up apigeelint
       #   run: npm install apigeelint
 

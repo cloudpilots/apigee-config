@@ -8,6 +8,10 @@
       {
         "name": "PREFIX",
         "value": "EXMPL"
+      },
+      {
+        "name": "private_key",
+        "value": "private.key"
       }
     ],
     "name": "backend_account_config"
