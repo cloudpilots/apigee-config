@@ -82,19 +82,21 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      - id: 'auth'
+      - name: 'Google auth'
+        id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: 'sa.json'
 
-      - id: 'secrets'
+      - name: 'Google Secret manager'
+        id: 'secrets'
         uses: 'google-github-actions/get-secretmanager-secrets@v1'
         with:
           secrets: |-
           token:projects/329187474656/secrets/test
 
-    # Example of using the output
-      - id: 'publish'
+      - name: 'Google Secrets publish'
+        id: 'publish'
         uses: 'foo/bar@main'
         env:
           TOKEN: '${{ steps.secrets.outputs.token }}'
