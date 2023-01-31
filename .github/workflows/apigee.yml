@@ -97,7 +97,6 @@ jobs:
 
       - name: "Google Secrets publish"
         id: "publish"
-        uses: "foo/bar@main"
         env:
           TOKEN: "${{ steps.secrets.outputs.token }}"
 
