@@ -86,7 +86,7 @@ jobs:
         id: "auth"
         uses: "google-github-actions/auth@v1"
         with:
-          credentials_json: $GCP_SA_JSON
+          credentials_json: sa.json
 
       - name: "Google Secret manager"
         id: "secrets"
@@ -99,7 +99,7 @@ jobs:
         id: "publish"
         shell: bash
         run: |
-          echo"${{ steps.secrets.outputs.token }}"
+          echo "${{ steps.secrets.outputs.token }}"
 
       # - name: Cache Maven packages
       #   uses: actions/cache@v2
