@@ -97,8 +97,9 @@ jobs:
 
       - name: "Google Secrets publish"
         id: "publish"
-        env:
-          TOKEN: "${{ steps.secrets.outputs.token }}"
+        shell: bash
+        run: |
+          echo"${{ steps.secrets.outputs.token }}"
 
       # - name: Cache Maven packages
       #   uses: actions/cache@v2
