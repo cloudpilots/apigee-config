@@ -14,10 +14,10 @@ on:
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
   PARENT_POM: ${{secrets.PARENT_POM}}
-  GIT_BRANCH: ""
-  APIGEE_ORG: ""
-  APIGEE_ENV: ""
-  APIGEE_DEPLOYMENT_SUFFIX: ""
+  GIT_BRANCH: ''
+  APIGEE_ORG: ''
+  APIGEE_ENV: ''
+  APIGEE_DEPLOYMENT_SUFFIX: ''
   DEFAULT_APIGEE_ORG: cpl-apigee-ng
   DEFAULT_APIGEE_ENV: test
 
@@ -35,10 +35,13 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v3
         with:
-          node-version:
-            16
+          node-version: 16
 
-            # Set Variables depending on branch
+      - name: 'Setup jq'
+        uses:
+          sergeysova/jq-action@v2.2.1
+
+          # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
         if: github.ref == 'refs/heads/main'
         run: |
@@ -66,8 +69,8 @@ jobs:
 
       - uses: cschleiden/replace-tokens@v1
         with:
-          tokenPrefix: "{"
-          tokenSuffix: "}"
+          tokenPrefix: '{'
+          tokenSuffix: '}'
           files: '["**/*.json"]'
         env:
           private.key: ${{ secrets.TEST }}
@@ -82,21 +85,21 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      - name: "Google auth"
-        id: "auth"
-        uses: "google-github-actions/auth@v1"
+      - name: 'Google auth'
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
         with:
           credentials_json: sa.json
 
-      - name: "Google Secret manager"
-        id: "secrets"
-        uses: "google-github-actions/get-secretmanager-secrets@v1"
+      - name: 'Google Secret manager'
+        id: 'secrets'
+        uses: 'google-github-actions/get-secretmanager-secrets@v1'
         with:
           secrets: |-
             token:projects/329187474656/secrets/test
 
-      - name: "Google Secrets publish"
-        id: "publish"
+      - name: 'Google Secrets publish'
+        id: 'publish'
         shell: bash
         run: |
           echo "${{ steps.secrets.outputs.token }}"
@@ -112,6 +115,14 @@ jobs:
         shell: bash
         run: |
           echo $PARENT_POM > pom.xml
+          pushd config/env/$APIGEE_ENV
+          for folder in */ ; do
+            echo "$folder"
+            suffix="/"
+            sf=${folder%"$suffix"}
+            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
+          done
+          popd
 
       - name: Deploy apigee config with Maven
         shell: bash
