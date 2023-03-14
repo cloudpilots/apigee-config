@@ -1,12 +1,21 @@
 gcloud secrets list --project=cpl-apigee-ng --format=json > secrets.json
-SECRETS=$(gcloud secrets list --project=cpl-apigee-ng --format=json)
-jq -c '.[].name' secrets.json | while read i; do
+jq -c '.[].name' secrets.json > processed-secrets.json 
+
+
+while read line; do
     # do stuff with $i
+    echo $line
     prefix="projects/329187474656/secrets/"
-    secret=${i#"$prefix"}
+    suffix="\""
+    foo=${line#"$prefix"}
+    secret=$(echo $foo | awk -F $prefix '{print $2}' | awk -F $suffix '{print $1}')
     echo $secret
-    # gcloud secrets versions access latest --secret=$$secret
-done
+    secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
+    echo $secretValue
+    find ./config -type f -not -path '*/\.*' -exec sed -i 's/$secret/$secretValue/g' {} +
+
+done < ./processed-secrets.json
+
 # for d in */ ; do
 #     echo "$d"
 #     suffix="/"
