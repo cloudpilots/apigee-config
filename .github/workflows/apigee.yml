@@ -32,10 +32,10 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Set up node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
+      # - name: Set up node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16
 
       - name: 'Setup jq'
         uses:
@@ -54,7 +54,7 @@ jobs:
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: sa.json
+          credentials_json: ${{ secrets.GCLOUD_SA_JSON }}
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
