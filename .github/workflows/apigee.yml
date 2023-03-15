@@ -122,8 +122,8 @@ jobs:
 
           done < ./processed-secrets.json
 
-      - name: 'Google Secrets replacement'
-        id: 'secret-replace'
+      - name: 'Merge configs'
+        id: 'merge-configs'
         shell: bash
         run: |
           for d in */ ; do
