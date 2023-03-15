@@ -45,11 +45,16 @@ jobs:
         uses:
           chrisdickinson/setup-yq@latest
 
+      # Generate SA key file from secret variable
+      - name: Generate SA key file
+        run: |
+          echo $GCP_SA_JSON > sa.json
+
       - name: Setup Google auth
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: '${{ secrets.GCP_SA_JSON }}'
+          credentials_json: ./sa.json
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
@@ -76,11 +81,6 @@ jobs:
         if: github.ref != 'refs/heads/main' && github.ref != 'refs/heads/acceptance' && github.ref != 'refs/heads/dev'
         run: |
           echo "APIGEE_ENV=$(echo $DEFAULT_APIGEE_ENV)" >> $GITHUB_ENV
-
-        # Generate SA key file from secret variable
-      - name: Generate SA key file
-        run: |
-          echo $GCP_SA_JSON > sa.json
 
       - uses: cschleiden/replace-tokens@v1
         with:
