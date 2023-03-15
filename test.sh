@@ -1,7 +1,6 @@
 gcloud secrets list --project=cpl-apigee-ng --format=json > secrets.json
 jq -c '.[].name' secrets.json > processed-secrets.json 
 
-
 while read line; do
     # do stuff with $i
     echo $line
@@ -12,7 +11,8 @@ while read line; do
     echo $secret
     secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
     echo $secretValue
-    find ./config -type f -not -path '*/\.*' -exec sed -i 's/$secret/$secretValue/g' {} +
+    file_name=$(grep -lrw "$secret" ./config)
+    yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
 
 done < ./processed-secrets.json
 

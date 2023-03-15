@@ -3,11 +3,11 @@
     "entry": [
       {
         "name": "COMPANY",
-        "value": "example.com"
+        "value": "secretValue"
       },
       {
         "name": "PREFIX",
-        "value": "test"
+        "value": "secretValue"
       }
     ],
     "name": "backend_account_config"

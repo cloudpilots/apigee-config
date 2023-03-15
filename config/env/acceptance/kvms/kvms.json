@@ -7,13 +7,9 @@
       },
       {
         "name": "PREFIX",
-        "value": "EXMPL"
-      },
-      {
-        "name": "clientId",
-        "value": "123456"
+        "value": "secretValue"
       }
     ],
-    "name": "newKVM"
+    "name": "backend_account_config"
   }
 ]

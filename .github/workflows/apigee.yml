@@ -41,6 +41,21 @@ jobs:
         uses:
           sergeysova/jq-action@v2.2.1
 
+      - name: 'Setup yq'
+        uses:
+          chrisdickinson/setup-yq@latest
+
+      - name: Setup Google auth
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCP_SA_JSON }}'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          version: '>= 363.0.0'
+
           # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
         if: github.ref == 'refs/heads/main'
@@ -85,24 +100,38 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      - name: 'Google auth'
-        id: 'auth'
-        uses: 'google-github-actions/auth@v1'
-        with:
-          credentials_json: sa.json
-
-      - name: 'Google Secret manager'
-        id: 'secrets'
-        uses: 'google-github-actions/get-secretmanager-secrets@v1'
-        with:
-          secrets: |-
-            token:projects/329187474656/secrets/test
-
-      - name: 'Google Secrets publish'
-        id: 'publish'
+      - name: 'Google Secrets replacement'
+        id: 'secret-replace'
         shell: bash
         run: |
-          echo "${{ steps.secrets.outputs.token }}"
+          gcloud secrets list --project=cpl-apigee-ng --format=json > secrets.json
+          jq -c '.[].name' secrets.json > processed-secrets.json 
+
+          while read line; do
+              # do stuff with $i
+              echo $line
+              prefix="projects/329187474656/secrets/"
+              suffix="\""
+              foo=${line#"$prefix"}
+              secret=$(echo $foo | awk -F $prefix '{print $2}' | awk -F $suffix '{print $1}')
+              echo $secret
+              secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
+              echo $secretValue
+              file_name=$(grep -lrw "$secret" ./config/$APIGEE_ENV)
+              yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
+
+          done < ./processed-secrets.json
+
+      - name: 'Google Secrets replacement'
+        id: 'secret-replace'
+        shell: bash
+        run: |
+          for d in */ ; do
+            echo "$d"
+            suffix="/"
+            sf=${d%"$suffix"}
+            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
+          done
 
       # - name: Cache Maven packages
       #   uses: actions/cache@v2
