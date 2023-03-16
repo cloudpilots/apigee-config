@@ -105,11 +105,8 @@ jobs:
       - name: 'Google Secrets replacement'
         id: 'secret-replace'
         run: |-
-          SECRETS=$(gcloud secrets list --project=cpl-apigee-ng --format=json) 
-          echo $SECRETS > secrets.json
-          cat secrets.json
+          gcloud secrets list --project=cpl-apigee-ng --format=json > ./secrets.json
           jq -c '.[].name' secrets.json > processed-secrets.json 
-          cat processed-secrets.json
           while read line; do
               # do stuff with $i
               echo $line
@@ -120,7 +117,7 @@ jobs:
               echo $secret
               secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
               echo $secretValue
-              file_name=$(grep -lrw "$secret" ./config/$APIGEE_ENV)
+              file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
               echo $APIGEE_ENV
               yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
 
