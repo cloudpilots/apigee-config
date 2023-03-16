@@ -47,7 +47,7 @@ jobs:
 
       - name: 'Setup yq'
         uses:
-          chrisdickinson/setup-yq@latest
+          mikefarah/yq@master
 
       # Generate SA key file from secret variable
       - name: Generate SA key file
@@ -100,6 +100,7 @@ jobs:
       - name: 'Google Secrets replacement'
         id: 'secret-replace'
         run: |-
+          #!/bin/bash
           gcloud secrets list --project=cpl-apigee-ng --format=json > ./secrets.json
           jq -c '.[].name' secrets.json > processed-secrets.json 
           while read line; do
@@ -114,7 +115,7 @@ jobs:
               echo $secretValue
               file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
               echo $APIGEE_ENV
-              yq -i -o=json "(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'" ${file_name}
+              yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
 
           done < ./processed-secrets.json
 
