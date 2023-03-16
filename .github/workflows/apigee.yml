@@ -114,7 +114,8 @@ jobs:
         id: 'secret-replace'
         shell: bash
         run: |
-          gcloud secrets list --project=cpl-apigee-ng --format=json > secrets.json
+          SECRETS=$(gcloud secrets list --project=cpl-apigee-ng --format=json) 
+          echo $SECRETS > secrets.json
           cat secrets.json
           jq -c '.[].name' secrets.json > processed-secrets.json 
           cat processed-secrets.json
@@ -129,6 +130,7 @@ jobs:
               secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
               echo $secretValue
               file_name=$(grep -lrw "$secret" ./config/$APIGEE_ENV)
+              echo $APIGEE_ENV
               yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
 
           done < ./processed-secrets.json
