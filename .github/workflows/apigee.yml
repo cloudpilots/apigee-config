@@ -69,7 +69,7 @@ jobs:
       - id: 'gcloud'
         name: 'gcloud'
         run: |-
-          gcloud info
+          gcloud projects list
 
       # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
