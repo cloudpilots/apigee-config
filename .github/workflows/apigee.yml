@@ -105,24 +105,18 @@ jobs:
           jq -c '.[].name' secrets.json > processed-secrets.json 
           while read line; do
               # do stuff with $i
-              echo $line
               prefix="projects/329187474656/secrets/"
               suffix="\""
               foo=${line#"$prefix"}
               secret=$(echo $foo | awk -F $prefix '{print $2}' | awk -F $suffix '{print $1}')
-              echo $secret
               secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
-              echo $secretValue
               file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
-              echo $APIGEE_ENV
               yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
-
           done < ./processed-secrets.json
 
       - name: 'Merge configs'
         id: 'merge-configs-org'
         run: |-
-          ls -la
           ./test.sh "org"
           ./test.sh "env/$APIGEE_ENV"
 
@@ -132,6 +126,11 @@ jobs:
       #     path: ~/.m2
       #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
       #     restore-keys: ${{ runner.os }}-m2
+
+      - name: Prepare repo for maven deployment
+        shell: bash
+        run: |
+          echo $PARENT_POM > pom.xml
 
       - name: Deploy apigee config with Maven
         shell: bash
