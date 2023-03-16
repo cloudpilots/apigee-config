@@ -59,7 +59,8 @@ jobs:
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
         with:
-          credentials_json: sa.json
+          workload_identity_provider: 'projects/329187474656/locations/global/workloadIdentityPools/apigee-auth/providers/github'
+          service_account: 'apigee-sa@cpl-apigee-ng.iam.gserviceaccount.com'
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v1'
