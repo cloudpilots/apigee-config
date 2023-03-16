@@ -15,10 +15,10 @@ env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
   GCLOUD_SA_JSON: ${{ secrets.GCLOUD_SA_JSON }}
   PARENT_POM: ${{secrets.PARENT_POM}}
-  GIT_BRANCH: ''
-  APIGEE_ORG: ''
-  APIGEE_ENV: ''
-  APIGEE_DEPLOYMENT_SUFFIX: ''
+  GIT_BRANCH: ""
+  APIGEE_ORG: ""
+  APIGEE_ENV: ""
+  APIGEE_DEPLOYMENT_SUFFIX: ""
   DEFAULT_APIGEE_ORG: cpl-apigee-ng
   DEFAULT_APIGEE_ENV: test
 
@@ -26,8 +26,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      contents: 'read'
-      id-token: 'write'
+      contents: "read"
+      id-token: "write"
 
     steps:
       - uses: actions/checkout@v2
@@ -41,13 +41,11 @@ jobs:
       #   with:
       #     node-version: 16
 
-      - name: 'Setup jq'
-        uses:
-          sergeysova/jq-action@v2.2.1
+      - name: "Setup jq"
+        uses: sergeysova/jq-action@v2.2.1
 
-      - name: 'Setup yq'
-        uses:
-          mikefarah/yq@master
+      - name: "Setup yq"
+        uses: mikefarah/yq@master
 
       # Generate SA key file from secret variable
       - name: Generate SA key file
@@ -55,16 +53,16 @@ jobs:
           echo $GCP_SA_JSON > sa.json
 
       - name: Setup Google auth
-        id: 'auth'
-        uses: 'google-github-actions/auth@v1'
+        id: "auth"
+        uses: "google-github-actions/auth@v1"
         with:
-          workload_identity_provider: 'projects/329187474656/locations/global/workloadIdentityPools/apigee-auth/providers/github'
-          service_account: 'apigee-sa@cpl-apigee-ng.iam.gserviceaccount.com'
+          workload_identity_provider: "projects/329187474656/locations/global/workloadIdentityPools/apigee-auth/providers/github"
+          service_account: "apigee-sa@cpl-apigee-ng.iam.gserviceaccount.com"
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v1'
+      - name: "Set up Cloud SDK"
+        uses: "google-github-actions/setup-gcloud@v1"
         with:
-          version: '>= 363.0.0'
+          version: ">= 363.0.0"
 
       # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
@@ -97,8 +95,8 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      - name: 'Google Secrets replacement'
-        id: 'secret-replace'
+      - name: "Google Secrets replacement"
+        id: "secret-replace"
         run: |-
           #!/bin/bash
           gcloud secrets list --project=cpl-apigee-ng --format=json > ./secrets.json
@@ -114,18 +112,18 @@ jobs:
               yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
           done < ./processed-secrets.json
 
-      - name: 'Merge configs'
-        id: 'merge-configs-org'
+      - name: "Merge configs"
+        id: "merge-configs-org"
         run: |-
           ./test.sh "org"
           ./test.sh "env/$APIGEE_ENV"
 
-      # - name: Cache Maven packages
-      #   uses: actions/cache@v2
-      #   with:
-      #     path: ~/.m2
-      #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
-      #     restore-keys: ${{ runner.os }}-m2
+      - name: Cache Maven packages
+        uses: actions/cache@v2
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-m2
 
       - name: Prepare repo for maven deployment
         shell: bash
