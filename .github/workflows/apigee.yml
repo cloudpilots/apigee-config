@@ -120,14 +120,10 @@ jobs:
           done < ./processed-secrets.json
 
       - name: 'Merge configs'
-        id: 'merge-configs'
+        id: 'merge-configs-org'
         run: |-
-          for d in */ ; do
-            echo "$d"
-            suffix="/"
-            sf=${d%"$suffix"}
-            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
-          done
+          ./test.sh "org"
+          ./test.sh "$APIGEE_ENV"
 
       # - name: Cache Maven packages
       #   uses: actions/cache@v2
