@@ -92,14 +92,6 @@ jobs:
         run: |
           echo "APIGEE_ENV=$(echo $DEFAULT_APIGEE_ENV)" >> $GITHUB_ENV
 
-      - uses: cschleiden/replace-tokens@v1
-        with:
-          tokenPrefix: '{'
-          tokenSuffix: '}'
-          files: '["**/*.json"]'
-        env:
-          private.key: ${{ secrets.TEST }}
-
       # - name: Set up apigeelint
       #   run: npm install apigeelint
 
@@ -112,8 +104,7 @@ jobs:
 
       - name: 'Google Secrets replacement'
         id: 'secret-replace'
-        shell: bash
-        run: |
+        run: |-
           SECRETS=$(gcloud secrets list --project=cpl-apigee-ng --format=json) 
           echo $SECRETS > secrets.json
           cat secrets.json
@@ -137,8 +128,7 @@ jobs:
 
       - name: 'Merge configs'
         id: 'merge-configs'
-        shell: bash
-        run: |
+        run: |-
           for d in */ ; do
             echo "$d"
             suffix="/"
