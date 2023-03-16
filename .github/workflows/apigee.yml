@@ -69,7 +69,7 @@ jobs:
       - id: 'gcloud'
         name: 'gcloud'
         run: |-
-          gcloud projects list
+          gcloud secrets list --project=cpl-apigee-ng --format=json
 
       # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
