@@ -22,7 +22,11 @@ merge_config() {
         suffix="/"
         sf=${d%"$suffix"}
         echo $sf
-        jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
+        if [[ "$sf" == *"developerApp"* ]];then
+            jq -s 'reduce .[] as $item ({}; . * $item)' $d/* > "$sf.json"
+        else
+            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
+        fi
     done
 }
 
