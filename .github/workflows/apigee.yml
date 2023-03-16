@@ -66,11 +66,6 @@ jobs:
         with:
           version: '>= 363.0.0'
 
-      - id: 'gcloud'
-        name: 'gcloud'
-        run: |-
-          gcloud secrets list --project=cpl-apigee-ng --format=json
-
       # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
         if: github.ref == 'refs/heads/main'
@@ -119,7 +114,7 @@ jobs:
               echo $secretValue
               file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
               echo $APIGEE_ENV
-              yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
+              yq -i -o=json "(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'" ${file_name}
 
           done < ./processed-secrets.json
 
