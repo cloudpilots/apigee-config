@@ -115,8 +115,9 @@ jobs:
         shell: bash
         run: |
           gcloud secrets list --project=cpl-apigee-ng --format=json > secrets.json
+          cat secrets.json
           jq -c '.[].name' secrets.json > processed-secrets.json 
-
+          cat processed-secrets.json
           while read line; do
               # do stuff with $i
               echo $line
