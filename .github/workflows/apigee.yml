@@ -122,6 +122,7 @@ jobs:
       - name: 'Merge configs'
         id: 'merge-configs-org'
         run: |-
+          ls -la
           ./test.sh "org"
           ./test.sh "$APIGEE_ENV"
 

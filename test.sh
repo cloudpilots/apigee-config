@@ -16,7 +16,7 @@
 
 # done < ./processed-secrets.json
 
-merge_configs() {
+merge_config() {
     for d in ./config/$1/* ; do
         echo "$d"
         suffix="/"
@@ -26,7 +26,7 @@ merge_configs() {
     done
 }
 
-merge_configs "$1"
+merge_config "$1"
 ####
 # export_projects() {
 #     for i in "$1"/*; do
