@@ -51,10 +51,6 @@ jobs:
         run: |
           echo $GCP_SA_JSON > sa.json
 
-      - name: Generate SA key file
-        run: |
-          echo $GCLOUD_SA_JSON > gcloud-sa.json
-
       - name: Setup Google auth
         id: 'auth'
         uses: 'google-github-actions/auth@v1'
