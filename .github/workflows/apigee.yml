@@ -133,19 +133,6 @@ jobs:
       #     key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
       #     restore-keys: ${{ runner.os }}-m2
 
-      - name: Prepare repo for maven deployment
-        shell: bash
-        run: |
-          echo $PARENT_POM > pom.xml
-          pushd config/env/$APIGEE_ENV
-          for folder in */ ; do
-            echo "$folder"
-            suffix="/"
-            sf=${folder%"$suffix"}
-            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
-          done
-          popd
-
       - name: Deploy apigee config with Maven
         shell: bash
         run: |
