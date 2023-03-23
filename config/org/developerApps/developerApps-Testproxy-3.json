@@ -1,9 +1,9 @@
 {
   "louis.gietzen@cloudpilots.com": [
     {
-      "apiProducts": ["testen"],
+      "apiProducts": ["apiProduct-Testproxy-3"],
       "callbackUrl": "http://weatherapp.com",
-      "name": "developerEmail-app",
+      "name": "louis.gietzen@cloudpilots.com-app",
       "scopes": []
     }
   ]
