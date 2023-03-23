@@ -1,0 +1,11 @@
+{
+  "louis.gietzen@cloudpilots.com": [
+    {
+      "apiProducts": ["testen"],
+      "callbackUrl": "http://weatherapp.com",
+      "name": "developerEmail-app",
+      "scopes": []
+    }
+  ]
+}
+  
