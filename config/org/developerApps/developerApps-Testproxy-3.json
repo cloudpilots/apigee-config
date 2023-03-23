@@ -3,7 +3,7 @@
     {
       "apiProducts": ["apiProduct-Testproxy-3"],
       "callbackUrl": "http://weatherapp.com",
-      "name": "louis.gietzen@cloudpilots.com-app",
+      "name": "teste-app",
       "scopes": []
     }
   ]
