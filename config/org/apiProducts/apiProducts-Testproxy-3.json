@@ -1,0 +1,33 @@
+[
+    {
+      "name": "apiProduct-Testproxy-3",
+      "displayName": "apiProduct-Testproxy-3",
+      "description": "weatherProduct",
+      "apiResources": ["/**", "/"],
+      "approvalType": "auto",
+      "attributes": [
+        {
+          "name": "description",
+          "value": "json Product"
+        },
+        {
+          "name": "developer.quota.limit",
+          "value": "10000"
+        },
+        {
+          "name": "developer.quota.interval",
+          "value": "1"
+        },
+        {
+          "name": "developer.quota.timeunit",
+          "value": "month"
+        }
+      ],
+      "environments": ["test"],
+      "proxies": ["testen"],
+      "quota": "10000",
+      "quotaInterval": "1",
+      "quotaTimeUnit": "month",
+      "scopes": []
+    }
+  ]
