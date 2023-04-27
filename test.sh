@@ -19,6 +19,10 @@
 merge_config() {
     for d in ./config/$1/* ; do
         echo "$d"
+        if [[(( $(jq < .github/outputs/all_changed_files.json '[.[].fileName | select(. == "$d")] | length') = 0))]] ;then
+            continue
+        if
+
         suffix="/"
         sf=${d%"$suffix"}
         echo $sf
