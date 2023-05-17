@@ -13,7 +13,6 @@ on:
 
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
-  GCLOUD_SA_JSON: ${{ secrets.GCLOUD_SA_JSON }}
   PARENT_POM: ${{secrets.PARENT_POM}}
   GIT_BRANCH: ''
   APIGEE_ORG: ''
@@ -110,22 +109,22 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      # - name: "Google Secrets replacement"
-      #   id: "secret-replace"
-      #   run: |-
-      #     #!/bin/bash
-      #     gcloud secrets list --project=cpl-apigee-ng --format=json > ./secrets.json
-      #     jq -c '.[].name' secrets.json > processed-secrets.json
-      #     while read line; do
-      #         # do stuff with $i
-      #         prefix="projects/329187474656/secrets/"
-      #         suffix="\""
-      #         foo=${line#"$prefix"}
-      #         secret=$(echo $foo | awk -F $prefix '{print $2}' | awk -F $suffix '{print $1}')
-      #         secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
-      #         file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
-      #         yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
-      #     done < ./processed-secrets.json
+      - name: "Google Secrets replacement"
+        id: "secret-replace"
+        run: |-
+          #!/bin/bash
+          gcloud secrets list --project=cpl-apigee-ng --format=json > ./secrets.json
+          jq -c '.[].name' secrets.json > processed-secrets.json
+          while read line; do
+              # do stuff with $i
+              prefix="projects/329187474656/secrets/"
+              suffix="\""
+              foo=${line#"$prefix"}
+              secret=$(echo $foo | awk -F $prefix '{print $2}' | awk -F $suffix '{print $1}')
+              secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
+              file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
+              yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
+          done < ./processed-secrets.json
 
       - name: 'Merge configs'
         id: 'merge-configs-org'
