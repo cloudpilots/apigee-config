@@ -1,20 +1,19 @@
 [
-    {
-      "entry": [
-        {
-          "name": "COMPANY",
-          "value": "example.com"
-        },
-        {
-          "name": "PREFIX",
-          "value": "EXMPL"
-        },
-        {
-          "name": "clientId",
-          "value": "clientId-Testproxy-4"
-        }
-      ],
-      "name": "kvm-Testproxy-4"
-    }
-  ]
-  
+  {
+    "entry": [
+      {
+        "name": "COMPANY",
+        "value": "example.com"
+      },
+      {
+        "name": "PREFIX",
+        "value": "EXMPL"
+      },
+      {
+        "name": "clientId",
+        "value": "clientId-Testproxy-77"
+      }
+    ],
+    "name": "kvm-Testproxy-77"
+  }
+]

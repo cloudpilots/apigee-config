@@ -1,1 +1,8 @@
-[]
+[
+  {
+    "name": "Testertesterr",
+    "host": "example.com",
+    "isEnabled": true,
+    "port": 8080
+  }
+]
