@@ -2,14 +2,14 @@
   {
     "entry": [
       {
-        "name": "kakakakak",
-        "value": "kakakakak.com"
+        "name": "COMPANY",
+        "value": "example.com"
       },
       {
-        "name": "kakakakak",
-        "value": "kakakakak"
+        "name": "PREFIX",
+        "value": "test"
       }
     ],
-    "name": "kakakakak"
+    "name": "backend_account_config2"
   }
 ]

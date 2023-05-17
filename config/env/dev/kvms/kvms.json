@@ -7,9 +7,9 @@
       },
       {
         "name": "PREFIX",
-        "value": "secretValue"
+        "value": "test1"
       }
     ],
-    "name": "backend_account_configer"
+    "name": "backend_account_config"
   }
 ]
