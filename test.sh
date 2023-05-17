@@ -35,9 +35,9 @@ merge_config() {
         sf=${d%"$suffix"}
         echo "the processed directory: $sf"
         if [[ "$sf" == *"developerApp"* ]];then
-            jq -s 'reduce .[] as $item ({}; . * $item)' $d/* > "$sf.json"
+            jq -s 'reduce .[] as $item ({}; . * $item)' $d/* > "$sf.json" || continue
         else
-            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json"
+            jq -s 'reduce inputs as $i (.; .list += $i.list) | flatten' $d/* > "$sf.json" || continue
         fi
     done
 }
