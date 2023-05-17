@@ -7,20 +7,26 @@ on:
   push:
     branches:
       - main
+      - acceptance
+      - dev
+      - test
 
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
   PARENT_POM: ${{secrets.PARENT_POM}}
-  GIT_BRANCH: ""
-  APIGEE_ORG: ""
-  APIGEE_ENV: ""
-  APIGEE_DEPLOYMENT_SUFFIX: ""
+  GIT_BRANCH: ''
+  APIGEE_ORG: ''
+  APIGEE_ENV: ''
+  APIGEE_DEPLOYMENT_SUFFIX: ''
   DEFAULT_APIGEE_ORG: cpl-apigee-ng
   DEFAULT_APIGEE_ENV: test
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
 
     steps:
       - uses: actions/checkout@v2
@@ -29,12 +35,50 @@ jobs:
         with:
           java-version: 1.8
 
-      - name: Set up node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 16
+      # - name: Set up node
+      #   uses: actions/setup-node@v3
+      #   with:
+      #     node-version: 16
 
-        # Set Variables depending on branch
+      - name: 'Setup jq'
+        uses: sergeysova/jq-action@v2.2.1
+
+      - name: 'Setup yq'
+        uses: mikefarah/yq@master
+
+      # Generate SA key file from secret variable
+      - name: Generate SA key file
+        run: |
+          echo $GCP_SA_JSON > sa.json
+
+      - name: Run changed-files with dir_names
+        id: changed-files-dir-names
+        uses: tj-actions/changed-files@v35
+        with:
+          files_ignore: |
+            .github
+            .helpers
+          json: 'true'
+          json_raw_format: 'true'
+          write_output_files: 'true'
+
+      - name: Verify the contents of the .github/all_changed_files.json file
+        run: |
+          cat .github/outputs/all_changed_files.json
+
+      - name: Setup Google auth
+        id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          workload_identity_provider: 'projects/329187474656/locations/global/workloadIdentityPools/apigee-auth/providers/github'
+          service_account: 'apigee-sa@cpl-apigee-ng.iam.gserviceaccount.com'
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v1'
+        with:
+          version: '>= 363.0.0'
+
+      # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
         if: github.ref == 'refs/heads/main'
         run: |
@@ -55,11 +99,6 @@ jobs:
         run: |
           echo "APIGEE_ENV=$(echo $DEFAULT_APIGEE_ENV)" >> $GITHUB_ENV
 
-        # Generate SA key file from secret variable
-      - name: Generate SA key file
-        run: |
-          echo $GCP_SA_JSON > sa.json
-
       # - name: Set up apigeelint
       #   run: npm install apigeelint
 
@@ -70,26 +109,28 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      ## Start secrets decrypt
-      ## Enable this step, if you need to decrypt secrets
-      # - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      #   with:
-      #     # version: '290.0.1'
-      #     project_id: ${{ secrets.GCP_PROJECT_ID }}
-      #     service_account_key: ${{ secrets.GCP_SA_KEY }}
-      #     export_default_credentials: true
-      # - run: gcloud info
-      # - name: 'decrypt secrets with Cloud KMS'
-      #   run: |
-      #     GCP_KMS_KEY_RING=${GCP_KMS_KEY_RING:-apimgmt}
-      #     GCP_KMS_KEY=${GCP_KMS_KEY:-github}
-      #     GCP_KMS_LOCATION=${GCP_KMS_LOCATION:-global}
-      #     for enc_file in $(find . -name '*.enc')
-      #     do
-      #       echo "Decrypting $enc_file"
-      #       gcloud kms decrypt --ciphertext-file=$enc_file --plaintext-file=${enc_file//\.enc/} --key=$GCP_KMS_KEY --keyring=$GCP_KMS_KEY_RING --location=$GCP_KMS_LOCATION
-      #     done
-      ## End secrets decrypt
+      - name: "Google Secrets replacement"
+        id: "secret-replace"
+        run: |-
+          #!/bin/bash
+          gcloud secrets list --project=cpl-apigee-ng --format=json > ./secrets.json
+          jq -c '.[].name' secrets.json > processed-secrets.json
+          while read line; do
+              # do stuff with $i
+              prefix="projects/329187474656/secrets/"
+              suffix="\""
+              foo=${line#"$prefix"}
+              secret=$(echo $foo | awk -F $prefix '{print $2}' | awk -F $suffix '{print $1}')
+              secretValue=$(gcloud secrets versions access latest --project=cpl-apigee-ng --secret=$secret)
+              file_name=$(grep -lrw "$secret" ./config/env/$APIGEE_ENV)
+              yq -i -o=json '(.[].entry[] | select(.value == '\"${secret}\"') | .value)='\"${secretValue}\"'' ${file_name}
+          done < ./processed-secrets.json
+
+      - name: 'Merge configs'
+        id: 'merge-configs-org'
+        run: |-
+          ./test.sh "org" 
+          ./test.sh "env/$APIGEE_ENV"
 
       # - name: Cache Maven packages
       #   uses: actions/cache@v2
