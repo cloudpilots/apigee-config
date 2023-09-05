@@ -1,1 +1,10 @@
-{}
+{
+    "hugh@example.com": [
+        {
+          "apiProducts": ["weatherProduct"],
+          "callbackUrl": "http://weatherapp.com",
+          "name": "hughapp",
+          "scopes": []
+        }
+      ]
+}
