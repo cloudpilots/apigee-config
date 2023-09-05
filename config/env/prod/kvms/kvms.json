@@ -1,0 +1,15 @@
+[
+  {
+    "entry": [
+      {
+        "name": "COMPANY",
+        "value": "secretValue"
+      },
+      {
+        "name": "PREFIX",
+        "value": "secretValue"
+      }
+    ],
+    "name": "backend_account_config"
+  }
+]
