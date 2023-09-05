@@ -13,11 +13,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-
-            # Set Variables depending on branch
-      - name: Echo Hello
-        run: |
-          echo "Hello World"      
       - name: Setup git config
         run: |
           git config user.name 'CPLLou'
@@ -27,3 +22,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
         run: |
           gh pr merge --auto --delete-branch "acceptance"
+
+            # Set Variables depending on branch
+      - name: Echo Hello
+        run: |
+          echo "Hello World"      
