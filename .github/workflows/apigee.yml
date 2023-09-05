@@ -7,6 +7,7 @@ on:
   push:
     branches:
       - main
+      - acceptance
 
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
