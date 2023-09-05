@@ -17,4 +17,13 @@ jobs:
             # Set Variables depending on branch
       - name: Echo Hello
         run: |
-          echo "Hello World"
+          echo "Hello World"      
+      - name: Setup git config
+        run: |
+          git config user.name 'CPLLou'
+          git config user.email 'louis.gietzen@cloudpilots.com'
+      - name: PR for Blog Post Updates
+        env:
+          GITHUB_TOKEN: ${{ secrets.TOKEN }}
+        run: |
+          gh pr merge --auto --delete-branch "acceptance"
