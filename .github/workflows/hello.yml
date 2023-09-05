@@ -8,7 +8,7 @@ on:
     types: [opened]
 
 jobs:
-  deploy:
+  prepare-repo:
     runs-on: ubuntu-latest
 
     steps:
@@ -23,7 +23,13 @@ jobs:
         run: |
           gh pr merge --auto --delete-branch "acceptance"
 
-            # Set Variables depending on branch
+            # Set Variables depending on branch  
+
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
       - name: Echo Hello
         run: |
           echo "Hello World"      
