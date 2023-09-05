@@ -4,8 +4,9 @@
 name: Apigee CI/CD with Maven
 
 on:
-  pull_request:
-    types: [opened]
+  push:
+    branches:
+      - main
 
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
