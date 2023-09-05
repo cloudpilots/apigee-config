@@ -8,6 +8,8 @@ on:
     branches:
       - main
       - acceptance
+      - dev
+      - test
 
 env:
   GCP_SA_JSON: ${{ secrets.SA_JSON }}
