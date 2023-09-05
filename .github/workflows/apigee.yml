@@ -31,9 +31,10 @@ jobs:
       - name: Set up node
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version:
+            16
 
-        # Set Variables depending on branch
+            # Set Variables depending on branch
       - name: Set Variables for [Main] (Prod) branch
         if: github.ref == 'refs/heads/main'
         run: |
@@ -59,6 +60,14 @@ jobs:
         run: |
           echo $GCP_SA_JSON > sa.json
 
+      - uses: cschleiden/replace-tokens@v1
+        with:
+          tokenPrefix: "{"
+          tokenSuffix: "}"
+          files: '["**/*.json"]'
+        env:
+          private.key: ${{ secrets.TEST }}
+
       # - name: Set up apigeelint
       #   run: npm install apigeelint
 
@@ -69,26 +78,24 @@ jobs:
       #     npm run apigeelint | tee report.apigeelint.html && \
       #     if [ ${PIPESTATUS[0]} -ne "0" ]; then exit -1; fi && \
 
-      ## Start secrets decrypt
-      ## Enable this step, if you need to decrypt secrets
-      # - uses: GoogleCloudPlatform/github-actions/setup-gcloud@master
-      #   with:
-      #     # version: '290.0.1'
-      #     project_id: ${{ secrets.GCP_PROJECT_ID }}
-      #     service_account_key: ${{ secrets.GCP_SA_KEY }}
-      #     export_default_credentials: true
-      # - run: gcloud info
-      # - name: 'decrypt secrets with Cloud KMS'
-      #   run: |
-      #     GCP_KMS_KEY_RING=${GCP_KMS_KEY_RING:-apimgmt}
-      #     GCP_KMS_KEY=${GCP_KMS_KEY:-github}
-      #     GCP_KMS_LOCATION=${GCP_KMS_LOCATION:-global}
-      #     for enc_file in $(find . -name '*.enc')
-      #     do
-      #       echo "Decrypting $enc_file"
-      #       gcloud kms decrypt --ciphertext-file=$enc_file --plaintext-file=${enc_file//\.enc/} --key=$GCP_KMS_KEY --keyring=$GCP_KMS_KEY_RING --location=$GCP_KMS_LOCATION
-      #     done
-      ## End secrets decrypt
+      - name: "Google auth"
+        id: "auth"
+        uses: "google-github-actions/auth@v1"
+        with:
+          credentials_json: sa.json
+
+      - name: "Google Secret manager"
+        id: "secrets"
+        uses: "google-github-actions/get-secretmanager-secrets@v1"
+        with:
+          secrets: |-
+            token:projects/329187474656/secrets/test
+
+      - name: "Google Secrets publish"
+        id: "publish"
+        shell: bash
+        run: |
+          echo "${{ steps.secrets.outputs.token }}"
 
       # - name: Cache Maven packages
       #   uses: actions/cache@v2
