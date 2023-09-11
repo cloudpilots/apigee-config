@@ -7,6 +7,15 @@ on:
   pull_request:
     types: [opened]
 
+  workflow_dispatch:
+    inputs:
+      pull-request:
+        description: Pull Request Number
+        required: false
+      review:
+        description: Review ID
+        required: false
+
 jobs:
   prepare-repo:
     runs-on: ubuntu-latest
@@ -23,7 +32,7 @@ jobs:
         run: |
           gh pr merge --auto --delete-branch "acceptance"
 
-            # Set Variables depending on branch  
+            # Set Variables depending on branch
 
   deploy:
     runs-on: ubuntu-latest
@@ -32,4 +41,17 @@ jobs:
       - uses: actions/checkout@v2
       - name: Echo Hello
         run: |
-          echo "Hello World"      
+          echo "Hello World"
+
+  automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: reitermarkus/automerge@v2
+        with:
+          token: ${{ secrets.TOKEN }}
+          merge-method: rebase
+          # do-not-merge-labels: never-merge
+          # required-labels: automerge
+          # pull-request: ${{ github.event.inputs.pull-request }}
+          review: ${{ github.event.inputs.review }}
+          # dry-run: true
