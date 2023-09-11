@@ -7,14 +7,9 @@ on:
   pull_request:
     types: [opened]
 
-  workflow_dispatch:
-    inputs:
-      pull-request:
-        description: Pull Request Number
-        required: false
-      review:
-        description: Review ID
-        required: false
+  permissions:
+    pull-requests: write
+    contents: write
 
 jobs:
   prepare-repo:
@@ -46,12 +41,8 @@ jobs:
   automerge:
     runs-on: ubuntu-latest
     steps:
-      - uses: reitermarkus/automerge@v2
+      - uses: peter-evans/enable-pull-request-automerge@v3
         with:
           token: ${{ secrets.TOKEN }}
-          merge-method: rebase
-          # do-not-merge-labels: never-merge
-          # required-labels: automerge
-          # pull-request: ${{ github.event.inputs.pull-request }}
-          # review: ${{ github.event.inputs.review }}
-          # dry-run: true
+          pull-request-number: ${{ github.event.pull_request.number }}
+          merge-method: squash
