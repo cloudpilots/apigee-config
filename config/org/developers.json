@@ -1,10 +1,16 @@
 [
-    {
-      "attributes": [],
-      "email": "hugh@example.com",
-      "firstName": "Hugh",
-      "lastName": "qweqwe",
-      "userName": "weqrewrewr"
-    }
-  ]
-  
+  {
+    "attributes": [],
+    "email": "hugh1@example.com",
+    "firstName": "H1ugh",
+    "lastName": "Jac1k",
+    "userName": "hu1ghexample"
+  },
+  {
+    "attributes": [],
+    "email": "hugh@example.com",
+    "firstName": "Hugh",
+    "lastName": "qweqwe",
+    "userName": "weqrewrewr"
+  }
+]
